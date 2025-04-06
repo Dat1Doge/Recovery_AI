@@ -1,6 +1,9 @@
 import 'dart:ffi';
-
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Home.dart';
 
 class DiagnosePage extends StatefulWidget {
   const DiagnosePage({super.key, required this.title});
@@ -21,6 +24,9 @@ class DiagnosePage extends StatefulWidget {
 }
 
 class _DiagnosePageState extends State<DiagnosePage> {
+  User? user = FirebaseAuth.instance.currentUser;
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
   double lHamstringPain = 0;
   double rHamstringPain = 0;
   double lQuadPain = 0;
@@ -31,6 +37,32 @@ class _DiagnosePageState extends State<DiagnosePage> {
   double rCalfPain = 0;
   double lAnklePain = 0;
   double rAnklePain = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    db.collection("Diagnosis").doc(user?.uid).get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        if(data.containsKey("Symptoms")){
+          final symptoms = data["Symptoms"];
+          setState(() {
+            lHamstringPain = symptoms["lHamstringPain"];
+            rHamstringPain = symptoms["rHamstringPain"];
+            lQuadPain = symptoms["lQuadPain"];
+            rQuadPain = symptoms["rQuadPain"];
+            lKneePain = symptoms["lKneePain"];
+            rKneePain = symptoms["rKneePain"];
+            lCalfPain = symptoms["lCalfPain"];
+            rCalfPain = symptoms["rCalfPain"];
+            lAnklePain = symptoms["lAnklePain"];
+            rAnklePain = symptoms["rAnklePain"];
+          });
+        }
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,268 +94,268 @@ class _DiagnosePageState extends State<DiagnosePage> {
         ),
         body: TabBarView(
           children: [
-              Column(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(30),
-                      color: Colors.blue,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Rate your pain in these different areas from a scale of 1-10",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
+            Column(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: EdgeInsets.all(30),
+                    color: Colors.blue,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Rate your pain in these different areas from a scale of 1-10",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
                           ),
-                          Row(
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              child: Text("Left Hamstring"),
+                              width: 120,
+                            ),
+                            Slider(
+                              value: lHamstringPain,
+                              max: 10,
+                              divisions: 10,
+                              onChanged: (double value) {
+                                setState(() {
+                                  lHamstringPain = value;
+                                });
+                              },
+                            ),
+                            Text(
+                              lHamstringPain.toString(),
+                              style: TextStyle(
+                                fontWeight: lHamstringPain > 0 ? FontWeight.bold : FontWeight.w400,
+                              ),
+                            ),
+                          ]
+                        ),
+                        Row(
                             children: [
                               Container(
-                                child: Text("Left Hamstring"),
+                                child: Text("Right Hamstring"),
                                 width: 120,
                               ),
                               Slider(
-                                value: lHamstringPain,
+                                value: rHamstringPain,
                                 max: 10,
                                 divisions: 10,
                                 onChanged: (double value) {
                                   setState(() {
-                                    lHamstringPain = value;
+                                    rHamstringPain = value;
                                   });
                                 },
                               ),
                               Text(
-                                lHamstringPain.toString(),
+                                rHamstringPain.toString(),
                                 style: TextStyle(
-                                  fontWeight: lHamstringPain > 0 ? FontWeight.bold : FontWeight.w400,
+                                  fontWeight: rHamstringPain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
                               ),
                             ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Right Hamstring"),
-                                  width: 120,
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Left Quad"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: lQuadPain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    lQuadPain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                lQuadPain.toString(),
+                                style: TextStyle(
+                                  fontWeight: lQuadPain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Slider(
-                                  value: rHamstringPain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      rHamstringPain = value;
-                                    });
-                                  },
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Right Quad"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: rQuadPain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    rQuadPain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                rQuadPain.toString(),
+                                style: TextStyle(
+                                  fontWeight: rQuadPain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Text(
-                                  rHamstringPain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: rHamstringPain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Left Knee"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: lKneePain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    lKneePain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                lKneePain.toString(),
+                                style: TextStyle(
+                                  fontWeight: lKneePain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Left Quad"),
-                                  width: 120,
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Right Knee"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: rKneePain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    rKneePain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                rKneePain.toString(),
+                                style: TextStyle(
+                                  fontWeight: rKneePain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Slider(
-                                  value: lQuadPain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      lQuadPain = value;
-                                    });
-                                  },
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Left Calf"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: lCalfPain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    lCalfPain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                lCalfPain.toString(),
+                                style: TextStyle(
+                                  fontWeight: lCalfPain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Text(
-                                  lQuadPain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: lQuadPain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Right Calf"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: rCalfPain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    rCalfPain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                rCalfPain.toString(),
+                                style: TextStyle(
+                                  fontWeight: rCalfPain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Right Quad"),
-                                  width: 120,
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Left Ankle"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: lAnklePain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    lAnklePain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                lAnklePain.toString(),
+                                style: TextStyle(
+                                  fontWeight: lAnklePain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Slider(
-                                  value: rQuadPain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      rQuadPain = value;
-                                    });
-                                  },
+                              ),
+                            ]
+                        ),
+                        Row(
+                            children: [
+                              Container(
+                                child: Text("Right Ankle"),
+                                width: 120,
+                              ),
+                              Slider(
+                                value: rAnklePain,
+                                max: 10,
+                                divisions: 10,
+                                onChanged: (double value) {
+                                  setState(() {
+                                    rAnklePain = value;
+                                  });
+                                },
+                              ),
+                              Text(
+                                rAnklePain.toString(),
+                                style: TextStyle(
+                                  fontWeight: rAnklePain > 0 ? FontWeight.bold : FontWeight.w400,
                                 ),
-                                Text(
-                                  rQuadPain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: rQuadPain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Left Knee"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: lKneePain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      lKneePain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  lKneePain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: lKneePain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Right Knee"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: rKneePain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      rKneePain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  rKneePain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: rKneePain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Left Calf"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: lCalfPain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      lCalfPain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  lCalfPain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: lCalfPain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Right Calf"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: rCalfPain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      rCalfPain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  rCalfPain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: rCalfPain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Left Ankle"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: lAnklePain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      lAnklePain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  lAnklePain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: lAnklePain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                          Row(
-                              children: [
-                                Container(
-                                  child: Text("Right Ankle"),
-                                  width: 120,
-                                ),
-                                Slider(
-                                  value: rAnklePain,
-                                  max: 10,
-                                  divisions: 10,
-                                  onChanged: (double value) {
-                                    setState(() {
-                                      rAnklePain = value;
-                                    });
-                                  },
-                                ),
-                                Text(
-                                  rAnklePain.toString(),
-                                  style: TextStyle(
-                                    fontWeight: rAnklePain > 0 ? FontWeight.bold : FontWeight.w400,
-                                  ),
-                                ),
-                              ]
-                          ),
-                        ],
-                      ),
-                    )
+                              ),
+                            ]
+                        ),
+                      ],
+                    ),
                   )
-                ],
-              ),
+                )
+              ],
+            ),
             Row(
               children: [
                 Expanded(
@@ -333,7 +365,7 @@ class _DiagnosePageState extends State<DiagnosePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Test"),
+                        Text("Placeholder"),
                       ],
                     ),
                   ),
@@ -365,7 +397,41 @@ class _DiagnosePageState extends State<DiagnosePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Test"),
+                        Text.rich(
+                          TextSpan(
+                            text: 'After submitting, you will recieve a diagnosis and a rehab plan will be added to the ', // default text style
+                            children: <TextSpan>[
+                              TextSpan(text: 'Rehab page', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async{
+                            await db.collection('Diagnosis').doc(user?.uid).set({
+                              "Symptoms": {
+                                "lHamstringPain": lHamstringPain,
+                                "rHamstringPain": rHamstringPain,
+                                "lQuadPain": lQuadPain,
+                                "rQuadPain": rQuadPain,
+                                "lKneePain": lKneePain,
+                                "rKneePain": rKneePain,
+                                "lCalfPain": lCalfPain,
+                                "rCalfPain": rCalfPain,
+                                "lAnklePain": lAnklePain,
+                                "rAnklePain": rAnklePain,
+                              },
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => MyHomePage(title: "Log in"))
+                            );
+                          },
+                          child: Text(
+                            "Submit",
+                            style: TextStyle(fontSize: 30),
+                          )
+                        )
                       ],
                     ),
                   ),

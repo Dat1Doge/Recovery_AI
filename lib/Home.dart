@@ -40,8 +40,9 @@ class _MyHomePageState extends State<MyHomePage> {
       docRef.get().then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
-
-          userName = data["name"];
+          setState(() {
+            userName = data["name"];
+          });
           print(userName);
         },
         onError: (e) => print("Error getting document: $e"),
@@ -237,7 +238,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               MaterialPageRoute(builder: (context) => LogInPage(title: "Log in"))
                             );
                           },
-                          child: Text("Log out"),
+                          child: Text(
+                            "Log out",
+                            style: TextStyle(fontSize: 30),
+                          ),
                         ),
                       ],
                     )

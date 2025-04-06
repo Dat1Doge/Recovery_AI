@@ -4,6 +4,7 @@ import 'Rehab.dart';
 import 'Train.dart';
 import 'Log_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:toastification/toastification.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -26,6 +27,17 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   User? user = FirebaseAuth.instance.currentUser;
+
+  Future<Object?> getName(User user) async
+  {
+    final ref = FirebaseDatabase.instance.ref();
+    final snapshot = await ref.child('users/${user.email}').get();
+    if (snapshot.exists) {
+      return snapshot.value;
+    } else {
+      return null;
+    }
+  }
 
   void showToast(String message, {bool isError = true}) {
     toastification.show(

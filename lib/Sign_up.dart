@@ -3,6 +3,7 @@ import 'package:recovery_ai/Log_in.dart';
 import 'Home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:toastification/toastification.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key, required this.title});
@@ -65,14 +66,10 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
+  FirebaseDatabase database = FirebaseDatabase.instance;
+
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
         // TRY THIS: Try changing the color here to a specific color (to
@@ -89,21 +86,7 @@ class _SignUpPageState extends State<SignUpPage> {
             child: Container(
               padding: EdgeInsets.all(30),
               color: Colors.blue,
-              //width: ,
               child: Column(
-                // Column is also a layout widget. It takes a list of children and
-                // arranges them vertically. By default, it sizes itself to fit its
-                // children horizontally, and tries to be as tall as its parent.
-                //
-                // Column has various properties to control how it sizes itself and
-                // how it positions its children. Here we use mainAxisAlignment to
-                // center the children vertically; the main axis here is the vertical
-                // axis because Columns are vertical (the cross axis would be
-                // horizontal).
-                //
-                // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-                // action in the IDE, or press "p" in the console), to see the
-                // wireframe for each widget.
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -170,7 +153,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       User? user = await signUpWithEmail(emailController.text, passwordController.text);
                       if (user != null)
                       {
-                        DatabaseReference ref = FirebaseDatabase.instance.ref("users/emailController.text");
+                        DatabaseReference ref = database.ref("users/${emailController.text}");
+                        await ref.set({"Name": nameController.text});
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => LogInPage(title: "Log in"))

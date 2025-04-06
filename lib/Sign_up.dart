@@ -170,6 +170,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       User? user = await signUpWithEmail(emailController.text, passwordController.text);
                       if (user != null)
                       {
+                        DatabaseReference ref = FirebaseDatabase.instance.ref("users/emailController.text");
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => LogInPage(title: "Log in"))

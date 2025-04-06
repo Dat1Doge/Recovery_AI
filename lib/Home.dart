@@ -4,7 +4,8 @@ import 'Rehab.dart';
 import 'Train.dart';
 import 'Log_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
+//import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:toastification/toastification.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -27,15 +28,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   User? user = FirebaseAuth.instance.currentUser;
+  String? userName;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
-  Future<Object?> getName(User user) async
-  {
-    final ref = FirebaseDatabase.instance.ref();
-    final snapshot = await ref.child('users/${user.email}').get();
-    if (snapshot.exists) {
-      return snapshot.value;
-    } else {
-      return null;
+  @override
+  void initState() {
+    super.initState();
+    if (user != null) {
+      print("entered");
+      final docRef = db.collection("users").doc(user?.uid);
+      docRef.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+
+          userName = data["name"];
+          print(userName);
+        },
+        onError: (e) => print("Error getting document: $e"),
+      );
     }
   }
 
@@ -98,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                      "Welcome, ${user?.email ?? 'Guest'}",
+                      "Welcome, ${userName ?? 'Loading...'}",
                       style: TextStyle(
                         fontSize: 48,
                         fontWeight: FontWeight.bold,

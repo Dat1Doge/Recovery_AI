@@ -3,7 +3,8 @@ import 'package:recovery_ai/Log_in.dart';
 import 'Home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:toastification/toastification.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_database/firebase_database.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key, required this.title});
@@ -66,7 +67,7 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  FirebaseDatabase database = FirebaseDatabase.instance;
+  //FirebaseDatabase database = FirebaseDatabase.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +154,11 @@ class _SignUpPageState extends State<SignUpPage> {
                       User? user = await signUpWithEmail(emailController.text, passwordController.text);
                       if (user != null)
                       {
-                        DatabaseReference ref = database.ref("users/${emailController.text}");
-                        await ref.set({"Name": nameController.text});
+                        FirebaseFirestore firestore = FirebaseFirestore.instance;
+                        await firestore.collection('users').doc(user.uid).set({
+                          'name': nameController.text,
+                          'email': user.email
+                        });
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => LogInPage(title: "Log in"))

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'Home.dart';
 
 class DiagnosePage extends StatefulWidget {
@@ -24,6 +26,7 @@ class DiagnosePage extends StatefulWidget {
 }
 
 class _DiagnosePageState extends State<DiagnosePage> {
+  String _imagePath = "";
   User? user = FirebaseAuth.instance.currentUser;
   FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -381,7 +384,33 @@ class _DiagnosePageState extends State<DiagnosePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Test"),
+                        _imagePath.isNotEmpty ? Image.network(_imagePath) : const SizedBox(),
+                        ElevatedButton(
+                            onPressed: () async {
+                              final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+
+                              if (image != null) {
+                                final imageFile = await image.readAsBytes();
+
+                                final ref = FirebaseStorage.instance.ref();
+                                final child = ref.child("images/${user?.uid}/${image.name}");
+                                final uploadTask = child.putData(imageFile);
+
+                                uploadTask.snapshotEvents.listen((event) async {
+                                  if (event.state == TaskState.success) {
+                                    _imagePath = await event.ref.getDownloadURL();
+                                    setState(() {});
+                                  } else if (event.state == TaskState.error) {
+                                    // handle error case
+                                  }
+                                });
+                              }
+                            },
+                            child: Text(
+                              "Upload Scan",
+                              style: TextStyle(fontSize: 30),
+                            )
+                        ),
                       ],
                     ),
                   ),

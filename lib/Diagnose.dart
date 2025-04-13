@@ -1,5 +1,5 @@
-import 'dart:ffi';
-import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'Home.dart';
+import 'dart:typed_data';
 
 class DiagnosePage extends StatefulWidget {
   const DiagnosePage({super.key, required this.title});
@@ -395,11 +396,15 @@ class _DiagnosePageState extends State<DiagnosePage> {
                                 allowedExtensions: ['jpg', 'png'], //prob need to edit later
                               );
                               if (result != null) {
-                                Uint8List? fileBytes = result.files.first.bytes;
-                                String fileName = result.files.first.name;
-
-                                // Upload file
-                                await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
+                                List<File> files = result.paths.map((path) => File(path!)).toList();
+                                for(var f in files) {
+                                  Future<Uint8List> fileBytes = f.readAsBytes();
+                                  String fileName = (f.path.split('/').last);
+                                  // Upload file
+                                  if (fileBytes != null) {
+                                    await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
+                                  }
+                                }
                               }
                               /*final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 

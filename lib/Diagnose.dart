@@ -1,9 +1,11 @@
 import 'dart:ffi';
+import 'dart:nativewrappers/_internal/vm/lib/typed_data_patch.dart';
 import 'package:flutter/material.dart';
 import 'package:toastification/toastification.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'Home.dart';
 
@@ -384,10 +386,22 @@ class _DiagnosePageState extends State<DiagnosePage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _imagePath.isNotEmpty ? Image.network(_imagePath) : const SizedBox(),
+                        Image.network(_imagePath.isNotEmpty ? _imagePath : "https://www.svgrepo.com/show/508699/landscape-placeholder.svg"),
                         ElevatedButton(
                             onPressed: () async {
-                              final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+                              FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                allowMultiple: true,
+                                type: FileType.custom,
+                                allowedExtensions: ['jpg', 'png'], //prob need to edit later
+                              );
+                              if (result != null) {
+                                Uint8List? fileBytes = result.files.first.bytes;
+                                String fileName = result.files.first.name;
+
+                                // Upload file
+                                await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
+                              }
+                              /*final image = await ImagePicker().pickImage(source: ImageSource.gallery);
 
                               if (image != null) {
                                 final imageFile = await image.readAsBytes();
@@ -404,10 +418,10 @@ class _DiagnosePageState extends State<DiagnosePage> {
                                     // handle error case
                                   }
                                 });
-                              }
+                              }*/
                             },
                             child: Text(
-                              "Upload Scan",
+                              "Upload Scans",
                               style: TextStyle(fontSize: 30),
                             )
                         ),
